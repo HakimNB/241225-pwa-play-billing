@@ -26,6 +26,7 @@ import { EXAMPLE_SKUS, IN_APP_COIN_COST, VALID_THEME_NAMES } from './skusValue';
 import * as usersdb from './usersdb';
 import * as rtdn from './notifications';
 import * as tokensdb from './tokensdb';
+import * as skuDetailsApi from './skuDetailsApi';
 import { topicID } from './config';
 
 import { HttpsError } from 'firebase-functions/lib/providers/https';
@@ -137,6 +138,14 @@ app.get('/getSkus', async (request: functions.Request, response: functions.Respo
 //     usersdb.authenticateUser(request);
 //     response.json({'status': 'Done'});
 // });
+
+app.get('/getSkuDetails', async (request: functions.Request, response: functions.Response) => {
+  functions.logger.debug('Get SKU Details');
+  const data = skuDetailsApi.getSkuDetails('userAccessToken', 'iap_dynasty_89');
+  response.json({
+    result: data,
+  });
+});
 
 app.post('/getUser', async (request: RequestWithUser, response: functions.Response) => {
   functions.logger.info('User request came in', { structuredData: true });
