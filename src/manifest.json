@@ -2,11 +2,11 @@
   "name": "Web Play Billing Sample App",
   "short_name": "Web Play Billing",
   "description": "Web billing sample",
-  "android_package_name": "<PLAY_PACKAGE_NAME>",
+  "android_package_name": "com.dynasty.pconlygame",
   "prefer_related_applications": true,
   "related_applications": [
     {
-      "id": "<PLAY_PACKAGE_NAME>",
+      "id": "com.dynasty.pconlygame",
       "platform": "chromeos_play"
     }
   ],

@@ -77,7 +77,7 @@ class ProfileMenu extends LitElement {
    * @memberof ProfileMenu
    */
   _showPlayStore() {
-    window.open('https://play.google.com/store/apps/details?id=<PLAY_PACKAGE_NAME>', '_blank');
+    window.open('https://play.google.com/store/apps/details?id=com.dynasty.pconlygame', '_blank');
   }
 
   /**

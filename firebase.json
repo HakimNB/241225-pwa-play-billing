@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "<FIREBASE_PROJECT_ID>",
+    "site": "dynasty-teapot-sample",
     "public": "src",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
