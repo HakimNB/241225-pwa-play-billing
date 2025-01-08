@@ -111,21 +111,24 @@ export async function testSkuDetails(userAccessToken: string, sku: string): Prom
 
     const token = await google.auth.getAccessToken();
     const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/skus?sku=iap_dynasty_89&productId=iap_dynasty_89&product_id=iap_dynasty_89&skuType=inapp&userIpAddress=100.74.76.182&languageCode=en-US&userAccessToken=${userAccessToken}`;
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    // const config = {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    // };
     functions.logger.debug('userAccessToken: ' + userAccessToken);
     functions.logger.debug('token: ' + token);
     functions.logger.debug('url: ' + szUrl);
-    functions.logger.debug(config);
+    // functions.logger.debug(config);
 
-    const refreshedToken = await jwtClient.refreshAccessToken();
-    functions.logger.debug('refreshedToken data: ' + refreshedToken.res?.data);
-    functions.logger.debug('refreshedToken: ' + refreshedToken.credentials.access_token);
+    // const refreshedToken = await jwtClient.refreshAccessToken();
+    // functions.logger.debug('refreshedToken data: ' + refreshedToken.res?.data);
+    // functions.logger.debug('refreshedToken: ' + refreshedToken.credentials.access_token);
 
-    const result = await google.auth.request({
+    // const headers = await jwtClient.getRequestHeaders(szUrl);
+    // functions.logger.debug(headers);
+
+    const result = await jwtClient.request({
       url: szUrl,
       method: 'GET',
     });
