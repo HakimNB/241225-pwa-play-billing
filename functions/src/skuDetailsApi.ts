@@ -21,6 +21,8 @@ import { coinValues, SKU_BASIC_SUB, SKU_PREMIUM_SUB } from './skusValue';
 import { getUserData } from './usersdb';
 import { addPurchaseToken, addSubscriptionToken } from './tokensdb';
 import * as FirebaseFirestore from '@google-cloud/firestore';
+import * as functions from 'firebase-functions';
+import axios from 'axios';
 
 // Initialize the Google API Client from service account credentials
 const jwtClient = new google.auth.JWT(
@@ -42,13 +44,126 @@ interface ChangeResult {
 }
 
 /**
+ *  GetSKUDetails of an in-app item with Play Developer API.
+ *
+ * @param {string} userAccessToken is the token of the user that request this sku details.
+ * @param {string} sku is the sku that is attempting to be retrieved
+ * @param {string} skutype is the type of the sku, whether 'inapp'
+ * @param {string} userip is the ip address of the user
+ * @param {string} lang is the language code of the user
+ * @return {(Promise<any>)} the response of the API
+ */
+export async function getSkuDetails(
+  userAccessToken: string,
+  sku: string,
+  skutype: string,
+  userip: string,
+  lang: string,
+): Promise<any> {
+  try {
+    // google.auth.request(config);
+
+    const token = await google.auth.getAccessToken();
+    const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/skus?sku=${sku}&skuType=${skutype}&userIpAddress=${userip}&languageCode=${lang}&userAccessToken=${userAccessToken}`;
+
+    functions.logger.debug('userAccessToken: ' + userAccessToken);
+    functions.logger.debug('token: ' + token);
+    functions.logger.debug('url: ' + szUrl);
+
+    const refreshedToken = await jwtClient.refreshAccessToken();
+    const newtoken = refreshedToken.credentials.access_token;
+    // functions.logger.debug('refreshedToken data: ' + refreshedToken.res?.data); // undefined
+    functions.logger.debug('refreshedToken: ' + newtoken);
+
+    // const result = await google.auth.request({
+    //   url: szUrl,
+    //   method: 'GET',
+    //   auth: jwtClient, // not an option
+    // });
+
+    // working, but forced refresh token, and it is deprecated
+    const config = {
+      headers: {
+        Authorization: `Bearer ${newtoken}`,
+      },
+    };
+    functions.logger.debug(config);
+    const response = await axios.get(szUrl, config);
+    const data = response.data;
+    functions.logger.debug(data);
+    return data;
+  } catch (error) {
+    console.error(`Error calling getSkuDetails : ${error}`);
+    return { result: false };
+  }
+}
+
+/**
  *  Acknowledge an in-app item purchase with Play Developer API.
  *
  * @param {string} userAccessToken is the token that was provided with this sku to be validated.
  * @param {string} sku is the sku that is attempting to be validated
  * @return {(Promise<any>)} whether the acknowledgement of the in-app purchase was successful
  */
-export async function getSkuDetails(userAccessToken: string, sku: string): Promise<any> {
+export async function testSkuDetails(userAccessToken: string, sku: string): Promise<any> {
+  try {
+    // google.auth.request(config);
+
+    const token = await google.auth.getAccessToken();
+    const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/skus?sku=iap_dynasty_89&productId=iap_dynasty_89&product_id=iap_dynasty_89&skuType=inapp&userIpAddress=100.74.76.182&languageCode=en-US&userAccessToken=${userAccessToken}`;
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    functions.logger.debug('userAccessToken: ' + userAccessToken);
+    functions.logger.debug('token: ' + token);
+    functions.logger.debug('url: ' + szUrl);
+    functions.logger.debug(config);
+
+    const refreshedToken = await jwtClient.refreshAccessToken();
+    functions.logger.debug('refreshedToken data: ' + refreshedToken.res?.data);
+    functions.logger.debug('refreshedToken: ' + refreshedToken.credentials.access_token);
+
+    const result = await google.auth.request({
+      url: szUrl,
+      method: 'GET',
+    });
+    functions.logger.debug(result);
+    return result;
+
+    // working, but wrong token scope
+    // const result = await axios.get(szUrl, config);
+    // functions.logger.debug(result);
+    // return result;
+
+    // working but only defined APIs
+    // const res = await playApi.inappproducts.get({
+    //   packageName: myconfig.packageName,
+    //   sku: 'iap_dynasty_89',
+    // });
+    // console.log(res.data);
+    // return {
+    //   result: true,
+    //   data: res.data,
+    // };
+  } catch (error) {
+    console.error(`Error calling getSkuDetails : ${error}`);
+    return { result: false };
+  }
+}
+
+/**
+ *  Acknowledge an in-app item purchase with Play Developer API.
+ *
+ * @param {string} userAccessToken is the token that was provided with this sku to be validated.
+ * @param {string} sku is the sku that is attempting to be validated
+ * @return {(Promise<any>)} whether the acknowledgement of the in-app purchase was successful
+ */
+export async function getSkuDetailsWithExistingAPI(
+  userAccessToken: string,
+  sku: string,
+): Promise<any> {
   try {
     /**
      *   // Do the magic
@@ -64,6 +179,8 @@ export async function getSkuDetails(userAccessToken: string, sku: string): Promi
       packageName: myconfig.packageName,
       sku: 'iap_dynasty_89',
     });
+    functions.logger.debug(res);
+    functions.logger.debug('result: ' + res);
     console.log(res.data);
     return {
       result: true,

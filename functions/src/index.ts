@@ -141,9 +141,36 @@ app.get('/getSkus', async (request: functions.Request, response: functions.Respo
 
 app.get('/getSkuDetails', async (request: functions.Request, response: functions.Response) => {
   functions.logger.debug('Get SKU Details');
-  const data = skuDetailsApi.getSkuDetails('userAccessToken', 'iap_dynasty_89');
+  // curl -X GET "https://dynasty-teapot-sample.web.app/api/getSkuDetails?one=hello&two=world"
+  functions.logger.debug('query: ' + JSON.stringify(request.query)); // query: {"one":"hello","two":"world"}
+  functions.logger.debug('params: ' + JSON.stringify(request.params)); // {}
+  functions.logger.debug('body: ' + JSON.stringify(request.body)); // {}
+  const userAccessToken = request.query.userAccessToken + '';
+  const sku = request.query.sku + '';
+  const skutype = request.query.skutype + '';
+  const useripaddress = request.query.useripaddress + '';
+  const languagecode = request.query.languagecode + '';
+  const result = await skuDetailsApi.getSkuDetails(
+    userAccessToken,
+    sku,
+    skutype,
+    useripaddress,
+    languagecode,
+  );
   response.json({
-    result: data,
+    result,
+  });
+});
+
+app.post('/postSkuDetails', async (request: functions.Request, response: functions.Response) => {
+  functions.logger.debug('Get SKU Details');
+  // curl -X POST "https://dynasty-teapot-sample.web.app/api/postSkuDetails" -H 'Content-Type: application/json' -d '{"key1":"value1", "key2":"value2"}
+  functions.logger.debug('body: ' + JSON.stringify(request.body)); // body: {"key1":"value1", "key2":"value2"}
+  const userAccessToken = request.body.userAccessToken;
+  functions.logger.debug('userAccessToken: ' + userAccessToken);
+  const result = await skuDetailsApi.testSkuDetails(userAccessToken, 'iap_dynasty_89');
+  response.json({
+    hello: result,
   });
 });
 
