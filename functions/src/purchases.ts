@@ -21,6 +21,7 @@ import { coinValues, SKU_BASIC_SUB, SKU_PREMIUM_SUB } from './skusValue';
 import { getUserData } from './usersdb';
 import { addPurchaseToken, addSubscriptionToken } from './tokensdb';
 import * as FirebaseFirestore from '@google-cloud/firestore';
+import * as functions from 'firebase-functions';
 
 // Initialize the Google API Client from service account credentials
 const jwtClient = new google.auth.JWT(
@@ -35,6 +36,29 @@ const playApi = google.androidpublisher({
   version: 'v3',
   auth: jwtClient,
 });
+
+/**
+ *  Return all the purchases completed by the user from the Play Developer API.
+ *
+ * @param {string} userAccessToken is the access token of the user whose purchases are to be listed
+ * @return {(Promise<any>)} whether the acknowledgement of the in-app purchase was successful
+ */
+export async function listPurchases(userAccessToken: string): Promise<any> {
+  try {
+    const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/purchases/products?userAccessToken=${userAccessToken}`;
+    const result = await jwtClient.request({
+      url: szUrl,
+      method: 'GET',
+    });
+    functions.logger.debug('url: ' + szUrl);
+    functions.logger.debug(result);
+    functions.logger.debug(result.data);
+    return result.data;
+  } catch (error) {
+    console.error(`Error calling getSkuDetails : ${error}`);
+    return { result: false };
+  }
+}
 
 interface ChangeResult {
   success: boolean;

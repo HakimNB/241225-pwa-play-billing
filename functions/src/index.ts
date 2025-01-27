@@ -132,6 +132,15 @@ app.get('/getSkus', async (request: functions.Request, response: functions.Respo
   response.json({ skus: skus });
 });
 
+app.get('/getPurchases', async (request: functions.Request, response: functions.Response) => {
+  functions.logger.info('purchases', { structuredData: true });
+  const userAccessToken = request.query.userAccessToken + '';
+  // const result = purchases.fetchPurchase(sku, userAccessToken);
+  const result = await purchases.listPurchases(userAccessToken);
+  functions.logger.info('purchases result', result);
+  response.json({ purchasesresult: result });
+});
+
 // Used for testing but not needed.
 // app.post('/createUser', async (request: RequestWithUser, response: functions.Response) => {
 //     usersdb.verifyAuth(request);
