@@ -22,8 +22,8 @@ admin.initializeApp();
 
 import * as functions from 'firebase-functions';
 import * as purchases from './purchases';
-import { EXAMPLE_SKUS, IN_APP_COIN_COST, VALID_THEME_NAMES } from './skusValue';
-import * as usersdb from './usersdb';
+// import { EXAMPLE_SKUS, IN_APP_COIN_COST, VALID_THEME_NAMES } from './skusValue';
+// import * as usersdb from './usersdb';
 import * as rtdn from './notifications';
 import * as tokensdb from './tokensdb';
 import * as skuDetailsApi from './skuDetailsApi';
@@ -32,24 +32,24 @@ import { topicID } from './config';
 import { HttpsError } from 'firebase-functions/lib/providers/https';
 
 import * as express from 'express';
-import * as bodyParser from 'body-parser';
+// import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 
 const app = express();
 app.use(cors({ origin: true }));
 
 // Firestore db stuff
-const SKUS_COLLECTION = 'SKUS';
-const db = admin.firestore();
+// const SKUS_COLLECTION = 'SKUS';
+// const db = admin.firestore();
 
-export interface SkuInfo {
-  type: string;
-  sku: string;
-}
+// export interface SkuInfo {
+//   type: string;
+//   sku: string;
+// }
 
-interface RequestWithUser extends functions.Request {
-  user?: admin.auth.DecodedIdToken;
-}
+// interface RequestWithUser extends functions.Request {
+//   user?: admin.auth.DecodedIdToken;
+// }
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -85,68 +85,68 @@ interface RequestWithUser extends functions.Request {
  * @param {functions.Response} res
  * @param {any} next
  */
-async function appendUser(req: RequestWithUser, res: functions.Response, next: any) {
-  if (req.headers?.authorization?.startsWith('Bearer ')) {
-    const bearerToken = req.headers.authorization.split(' ').pop();
-    functions.logger.warn(req.headers?.authorization.toString());
+// async function appendUser(req: RequestWithUser, res: functions.Response, next: any) {
+//   if (req.headers?.authorization?.startsWith('Bearer ')) {
+//     const bearerToken = req.headers.authorization.split(' ').pop();
+//     functions.logger.warn(req.headers?.authorization.toString());
 
-    try {
-      const user = await admin.auth().verifyIdToken(bearerToken!);
-      req.user = user;
-    } catch (err) {
-      functions.logger.warn('Could not validate user: ', err);
-    }
-  } else {
-    functions.logger.warn('No bearer token present, cannot determine user');
-  }
+//     try {
+//       const user = await admin.auth().verifyIdToken(bearerToken!);
+//       req.user = user;
+//     } catch (err) {
+//       functions.logger.warn('Could not validate user: ', err);
+//     }
+//   } else {
+//     functions.logger.warn('No bearer token present, cannot determine user');
+//   }
 
-  next();
-}
+//   next();
+// }
 
-app.use(appendUser);
-app.use(bodyParser.json());
+// app.use(appendUser);
+// app.use(bodyParser.json());
 
-app.get('/getSkus', async (request: functions.Request, response: functions.Response) => {
-  functions.logger.info('SKU request came in', { structuredData: true });
-  const skuDocs = await db.collection(SKUS_COLLECTION).listDocuments();
-  if (skuDocs.length == 0) {
-    functions.logger.warn('Zero length SkuDocs found, adding in missing SKUs');
-    for (const exampleSku of EXAMPLE_SKUS) {
-      await db
-        .collection(SKUS_COLLECTION)
-        .add(exampleSku)
-        .then((docRef) => {
-          skuDocs.push(docRef);
-        })
-        .catch((error) => {
-          functions.logger.warn(`Could not add example sku to collection : ${error}`);
-        });
-    }
-  }
-  const skus: any = [];
-  for (const skuDoc of skuDocs) {
-    const sku = await skuDoc.get();
-    skus.push(sku.data());
-  }
-  functions.logger.info(skus.toString());
-  response.json({ skus: skus });
-});
-
-app.get('/getPurchases', async (request: functions.Request, response: functions.Response) => {
-  functions.logger.info('purchases', { structuredData: true });
-  const userAccessToken = request.query.userAccessToken + '';
-  // const result = purchases.fetchPurchase(sku, userAccessToken);
-  const result = await purchases.listPurchases(userAccessToken);
-  functions.logger.info('purchases result', result);
-  response.json({ purchasesresult: result });
-});
-
-// Used for testing but not needed.
-// app.post('/createUser', async (request: RequestWithUser, response: functions.Response) => {
-//     usersdb.verifyAuth(request);
-//     usersdb.authenticateUser(request);
-//     response.json({'status': 'Done'});
+// app.get('/getSkus', async (request: functions.Request, response: functions.Response) => {
+//   functions.logger.info('SKU request came in', { structuredData: true });
+//   const skuDocs = await db.collection(SKUS_COLLECTION).listDocuments();
+//   if (skuDocs.length == 0) {
+//     functions.logger.warn('Zero length SkuDocs found, adding in missing SKUs');
+//     for (const exampleSku of EXAMPLE_SKUS) {
+//       await db
+//         .collection(SKUS_COLLECTION)
+//         .add(exampleSku)
+//         .then((docRef) => {
+//           skuDocs.push(docRef);
+//         })
+//         .catch((error) => {
+//           functions.logger.warn(`Could not add example sku to collection : ${error}`);
+//         });
+//     }
+//   }
+//   const skus: any = [];
+//   for (const skuDoc of skuDocs) {
+//     const sku = await skuDoc.get();
+//     skus.push(sku.data());
+//   }
+//   functions.logger.info(skus.toString());
+//   response.json({ skus: skus });
 // });
+
+// app.get('/getPurchases', async (request: functions.Request, response: functions.Response) => {
+//   functions.logger.info('purchases', { structuredData: true });
+//   const userAccessToken = request.query.userAccessToken + '';
+//   // const result = purchases.fetchPurchase(sku, userAccessToken);
+//   const result = await purchases.listPurchases(userAccessToken);
+//   functions.logger.info('purchases result', result);
+//   response.json({ purchasesresult: result });
+// });
+
+// // Used for testing but not needed.
+// // app.post('/createUser', async (request: RequestWithUser, response: functions.Response) => {
+// //     usersdb.verifyAuth(request);
+// //     usersdb.authenticateUser(request);
+// //     response.json({'status': 'Done'});
+// // });
 
 app.get('/getSkuDetails', async (request: functions.Request, response: functions.Response) => {
   functions.logger.debug('Get SKU Details');
@@ -183,320 +183,320 @@ app.post('/postSkuDetails', async (request: functions.Request, response: functio
   });
 });
 
-app.post('/getUser', async (request: RequestWithUser, response: functions.Response) => {
-  functions.logger.info('User request came in', { structuredData: true });
-  usersdb.verifyAuth(request);
-  const authenticatedUserRef = await usersdb.authenticateUser(request);
+// app.post('/getUser', async (request: RequestWithUser, response: functions.Response) => {
+//   functions.logger.info('User request came in', { structuredData: true });
+//   usersdb.verifyAuth(request);
+//   const authenticatedUserRef = await usersdb.authenticateUser(request);
 
-  if (!authenticatedUserRef) {
-    response.status(403).send({
-      error: 'user is not found in database',
-    });
-    return;
-  }
+//   if (!authenticatedUserRef) {
+//     response.status(403).send({
+//       error: 'user is not found in database',
+//     });
+//     return;
+//   }
 
-  const userData = await usersdb.getUserData(authenticatedUserRef);
-  if (userData) {
-    response.json({
-      status: 'user info found',
-      accountName: userData.accountName,
-      email: userData.email,
-      photoEntitlements: userData.photoEntitlements,
-      hasBasicSub: userData.hasBasicSub,
-      hasPremiumSub: userData.hasPremiumSub,
-      numCoins: userData.numCoins,
-      theme: userData.theme,
-    });
-    return;
-  }
+//   const userData = await usersdb.getUserData(authenticatedUserRef);
+//   if (userData) {
+//     response.json({
+//       status: 'user info found',
+//       accountName: userData.accountName,
+//       email: userData.email,
+//       photoEntitlements: userData.photoEntitlements,
+//       hasBasicSub: userData.hasBasicSub,
+//       hasPremiumSub: userData.hasPremiumSub,
+//       numCoins: userData.numCoins,
+//       theme: userData.theme,
+//     });
+//     return;
+//   }
 
-  response.json({ error: 'error getting user info.' });
-});
+//   response.json({ error: 'error getting user info.' });
+// });
 
-app.post('/setTheme', async (request: RequestWithUser, response: functions.Response) => {
-  usersdb.verifyAuth(request);
-  const authenticatedUserRef = await usersdb.authenticateUser(request);
+// app.post('/setTheme', async (request: RequestWithUser, response: functions.Response) => {
+//   usersdb.verifyAuth(request);
+//   const authenticatedUserRef = await usersdb.authenticateUser(request);
 
-  if (!authenticatedUserRef) {
-    response.status(403).send({
-      error: 'user is not found in database',
-    });
-    return;
-  }
+//   if (!authenticatedUserRef) {
+//     response.status(403).send({
+//       error: 'user is not found in database',
+//     });
+//     return;
+//   }
 
-  const numCoins = IN_APP_COIN_COST['theme_change']; // Simulates reading from a database
-  const themeColor: string = request.body?.color;
+//   const numCoins = IN_APP_COIN_COST['theme_change']; // Simulates reading from a database
+//   const themeColor: string = request.body?.color;
 
-  if (themeColor === undefined || !VALID_THEME_NAMES.includes(themeColor)) {
-    response.status(400).json({
-      error: `Color provided : ${themeColor} was not in the list of valid colors ${VALID_THEME_NAMES.toString()}`,
-    });
-    return;
-  }
+//   if (themeColor === undefined || !VALID_THEME_NAMES.includes(themeColor)) {
+//     response.status(400).json({
+//       error: `Color provided : ${themeColor} was not in the list of valid colors ${VALID_THEME_NAMES.toString()}`,
+//     });
+//     return;
+//   }
 
-  const themeChanged = await purchases.setTheme(authenticatedUserRef, numCoins, themeColor);
-  if (themeChanged.success) {
-    response.json({
-      status: 'theme successfully changed',
-      new_coin_amt: themeChanged.userCoinValue,
-    });
-    return;
-  }
+//   const themeChanged = await purchases.setTheme(authenticatedUserRef, numCoins, themeColor);
+//   if (themeChanged.success) {
+//     response.json({
+//       status: 'theme successfully changed',
+//       new_coin_amt: themeChanged.userCoinValue,
+//     });
+//     return;
+//   }
 
-  response.json({ error: 'error changing theme.' });
-});
+//   response.json({ error: 'error changing theme.' });
+// });
 
-app.post('/addCoins', async (request: RequestWithUser, response: functions.Response) => {
-  functions.logger.info('Add coins request came in', { structuredData: true });
-  usersdb.verifyAuth(request);
-  const authenticatedUserRef = await usersdb.authenticateUser(request);
+// app.post('/addCoins', async (request: RequestWithUser, response: functions.Response) => {
+//   functions.logger.info('Add coins request came in', { structuredData: true });
+//   usersdb.verifyAuth(request);
+//   const authenticatedUserRef = await usersdb.authenticateUser(request);
 
-  if (!authenticatedUserRef) {
-    response.status(403).send({
-      error: 'user is not found in database',
-    });
-    return;
-  }
+//   if (!authenticatedUserRef) {
+//     response.status(403).send({
+//       error: 'user is not found in database',
+//     });
+//     return;
+//   }
 
-  // Get parameters passed to the request
-  const sku: string = request.body?.sku;
-  const purchaseToken: string = request.body?.token;
+//   // Get parameters passed to the request
+//   const sku: string = request.body?.sku;
+//   const purchaseToken: string = request.body?.token;
 
-  if (sku === undefined || purchaseToken === undefined) {
-    console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
-    response.status(400).json({
-      error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
-    });
-    return;
-  }
+//   if (sku === undefined || purchaseToken === undefined) {
+//     console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
+//     response.status(400).json({
+//       error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
+//     });
+//     return;
+//   }
 
-  functions.logger.info(`${sku} with ${purchaseToken} is received to add coins for user`);
+//   functions.logger.info(`${sku} with ${purchaseToken} is received to add coins for user`);
 
-  // Make sure token is in valid purchase state
-  const purchase = await purchases.fetchPurchase(sku, purchaseToken);
-  if (!purchase || !purchase.wasPurchased()) {
-    console.error('Cannot determine if purchase is valid');
-    response.status(503).json({ error: 'Error adding coins. Purchase not verified' });
-    return;
-  }
+//   // Make sure token is in valid purchase state
+//   const purchase = await purchases.fetchPurchase(sku, purchaseToken);
+//   if (!purchase || !purchase.wasPurchased()) {
+//     console.error('Cannot determine if purchase is valid');
+//     response.status(503).json({ error: 'Error adding coins. Purchase not verified' });
+//     return;
+//   }
 
-  // Add the items to the user account
-  const addedCoins = await purchases.addCoins(authenticatedUserRef, purchase);
-  if (!addedCoins) {
-    response.status(503).json({ error: 'error granting coins entitlement.' });
-    return;
-  }
-  // If purchase has not been acknowledged, acknowledge it
-  if (!purchase.wasAcknowledged()) {
-    const purchaseAcknowledged = await purchases.acknowledgeInAppPurchase(sku, purchaseToken);
-    if (purchaseAcknowledged) {
-      response.json({ status: 'Purchase verified and coins granted.' });
-      return;
-    }
-    response.json({ error: 'Error acknowledging purchase' });
-    return;
-  }
+//   // Add the items to the user account
+//   const addedCoins = await purchases.addCoins(authenticatedUserRef, purchase);
+//   if (!addedCoins) {
+//     response.status(503).json({ error: 'error granting coins entitlement.' });
+//     return;
+//   }
+//   // If purchase has not been acknowledged, acknowledge it
+//   if (!purchase.wasAcknowledged()) {
+//     const purchaseAcknowledged = await purchases.acknowledgeInAppPurchase(sku, purchaseToken);
+//     if (purchaseAcknowledged) {
+//       response.json({ status: 'Purchase verified and coins granted.' });
+//       return;
+//     }
+//     response.json({ error: 'Error acknowledging purchase' });
+//     return;
+//   }
 
-  response.json({ status: 'Purchase was already acknowledged' });
-});
+//   response.json({ status: 'Purchase was already acknowledged' });
+// });
 
-app.post('/addPhoto', async (request: RequestWithUser, response: functions.Response) => {
-  functions.logger.info('Add photo request came in', { structuredData: true });
-  usersdb.verifyAuth(request);
-  const authenticatedUserRef = await usersdb.authenticateUser(request);
+// app.post('/addPhoto', async (request: RequestWithUser, response: functions.Response) => {
+//   functions.logger.info('Add photo request came in', { structuredData: true });
+//   usersdb.verifyAuth(request);
+//   const authenticatedUserRef = await usersdb.authenticateUser(request);
 
-  if (!authenticatedUserRef) {
-    response.status(403).send({
-      error: 'user is not found in database',
-    });
-    return;
-  }
+//   if (!authenticatedUserRef) {
+//     response.status(403).send({
+//       error: 'user is not found in database',
+//     });
+//     return;
+//   }
 
-  // Get parameters passed to the request
-  const sku: string = request.body?.sku;
-  const purchaseToken: string = request.body?.token;
+//   // Get parameters passed to the request
+//   const sku: string = request.body?.sku;
+//   const purchaseToken: string = request.body?.token;
 
-  if (sku === undefined || purchaseToken === undefined) {
-    console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
-    response.status(400).json({
-      error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
-    });
-    return;
-  }
+//   if (sku === undefined || purchaseToken === undefined) {
+//     console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
+//     response.status(400).json({
+//       error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
+//     });
+//     return;
+//   }
 
-  // Make sure token is in valid purchase state
-  const purchase = await purchases.fetchPurchase(sku, purchaseToken);
-  if (!purchase || !purchase.wasPurchased()) {
-    console.error('Cannot determine if purchase is valid');
-    response.status(503).json({ error: 'Error adding photo. Purchase not verified' });
-    return;
-  }
+//   // Make sure token is in valid purchase state
+//   const purchase = await purchases.fetchPurchase(sku, purchaseToken);
+//   if (!purchase || !purchase.wasPurchased()) {
+//     console.error('Cannot determine if purchase is valid');
+//     response.status(503).json({ error: 'Error adding photo. Purchase not verified' });
+//     return;
+//   }
 
-  // Add photo user account's photo entitlements
-  const addedPhoto = await purchases.addPhoto(authenticatedUserRef, purchase);
-  if (!addedPhoto) {
-    response.status(503).json({ error: 'error granting photo entitlement.' });
-    return;
-  }
-  // If purchase has not been acknowledged, acknowledge it
-  if (!purchase.wasAcknowledged()) {
-    const purchaseAcknowledged = await purchases.acknowledgeInAppPurchase(sku, purchaseToken);
-    if (purchaseAcknowledged) {
-      response.json({ status: 'Purchase verified and photo added.' });
-      return;
-    }
-    response.json({ error: 'Error acknowledging purchase' });
-    return;
-  }
+//   // Add photo user account's photo entitlements
+//   const addedPhoto = await purchases.addPhoto(authenticatedUserRef, purchase);
+//   if (!addedPhoto) {
+//     response.status(503).json({ error: 'error granting photo entitlement.' });
+//     return;
+//   }
+//   // If purchase has not been acknowledged, acknowledge it
+//   if (!purchase.wasAcknowledged()) {
+//     const purchaseAcknowledged = await purchases.acknowledgeInAppPurchase(sku, purchaseToken);
+//     if (purchaseAcknowledged) {
+//       response.json({ status: 'Purchase verified and photo added.' });
+//       return;
+//     }
+//     response.json({ error: 'Error acknowledging purchase' });
+//     return;
+//   }
 
-  response.json({ status: 'Purchase was already acknowledged' });
-});
+//   response.json({ status: 'Purchase was already acknowledged' });
+// });
 
-app.post('/removePhoto', async (request: RequestWithUser, response: functions.Response) => {
-  functions.logger.info('Remove photo request came in', { structuredData: true });
-  usersdb.verifyAuth(request);
-  const authenticatedUserRef = await usersdb.authenticateUser(request);
+// app.post('/removePhoto', async (request: RequestWithUser, response: functions.Response) => {
+//   functions.logger.info('Remove photo request came in', { structuredData: true });
+//   usersdb.verifyAuth(request);
+//   const authenticatedUserRef = await usersdb.authenticateUser(request);
 
-  if (!authenticatedUserRef) {
-    response.status(403).send({
-      error: 'user is not found in database',
-    });
-    return;
-  }
+//   if (!authenticatedUserRef) {
+//     response.status(403).send({
+//       error: 'user is not found in database',
+//     });
+//     return;
+//   }
 
-  // Get parameters passed to the request
-  const sku: string = request.body?.sku;
-  const purchaseToken: string = request.body?.token;
+//   // Get parameters passed to the request
+//   const sku: string = request.body?.sku;
+//   const purchaseToken: string = request.body?.token;
 
-  if (sku === undefined || purchaseToken === undefined) {
-    console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
-    response.status(400).json({
-      error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
-    });
-    return;
-  }
+//   if (sku === undefined || purchaseToken === undefined) {
+//     console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
+//     response.status(400).json({
+//       error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
+//     });
+//     return;
+//   }
 
-  // Make sure token is in valid purchase state
-  const purchase = await purchases.fetchPurchase(sku, purchaseToken);
-  if (!purchase || !purchase.wasPurchased()) {
-    console.error('Cannot determine if purchase is valid');
-    response.status(503).json({ error: 'Error removing photo. Purchase not verified' });
-    return;
-  }
+//   // Make sure token is in valid purchase state
+//   const purchase = await purchases.fetchPurchase(sku, purchaseToken);
+//   if (!purchase || !purchase.wasPurchased()) {
+//     console.error('Cannot determine if purchase is valid');
+//     response.status(503).json({ error: 'Error removing photo. Purchase not verified' });
+//     return;
+//   }
 
-  // Remove user account's photo entitlements
-  const removedPhoto = await purchases.removePhoto(authenticatedUserRef, purchase);
-  if (removedPhoto) {
-    response.json({ status: 'Photo removed.' });
-    return;
-  }
+//   // Remove user account's photo entitlements
+//   const removedPhoto = await purchases.removePhoto(authenticatedUserRef, purchase);
+//   if (removedPhoto) {
+//     response.json({ status: 'Photo removed.' });
+//     return;
+//   }
 
-  response.status(503).json({ error: 'error removing entitlement.' });
-});
+//   response.status(503).json({ error: 'error removing entitlement.' });
+// });
 
-app.post('/setHasSub', async (request: RequestWithUser, response: functions.Response) => {
-  functions.logger.info('Set hasSub request came in', { structuredData: true });
-  usersdb.verifyAuth(request);
-  const authenticatedUserRef = await usersdb.authenticateUser(request);
+// app.post('/setHasSub', async (request: RequestWithUser, response: functions.Response) => {
+//   functions.logger.info('Set hasSub request came in', { structuredData: true });
+//   usersdb.verifyAuth(request);
+//   const authenticatedUserRef = await usersdb.authenticateUser(request);
 
-  if (!authenticatedUserRef) {
-    response.status(403).send({
-      error: 'user is not found in database',
-    });
-    return;
-  }
+//   if (!authenticatedUserRef) {
+//     response.status(403).send({
+//       error: 'user is not found in database',
+//     });
+//     return;
+//   }
 
-  // Get parameters passed to the request
-  const sku: string = request.body?.sku;
-  const purchaseToken: string = request.body?.token;
+//   // Get parameters passed to the request
+//   const sku: string = request.body?.sku;
+//   const purchaseToken: string = request.body?.token;
 
-  // Verify purchase with Play Developer API
-  const subPurchase = await purchases.fetchSubscriptionPurchase(sku, purchaseToken);
+//   // Verify purchase with Play Developer API
+//   const subPurchase = await purchases.fetchSubscriptionPurchase(sku, purchaseToken);
 
-  if (!subPurchase || !subPurchase.isEntitlementActive()) {
-    console.error('Cannot determine if subscription purchase is valid');
-    response.status(503).json({ error: 'Error adding subscription. Purchase not verified' });
-    return;
-  }
+//   if (!subPurchase || !subPurchase.isEntitlementActive()) {
+//     console.error('Cannot determine if subscription purchase is valid');
+//     response.status(503).json({ error: 'Error adding subscription. Purchase not verified' });
+//     return;
+//   }
 
-  // Add subscription entitlement to user
-  const setSub = await purchases.setHasSub(authenticatedUserRef, subPurchase, sku, true);
+//   // Add subscription entitlement to user
+//   const setSub = await purchases.setHasSub(authenticatedUserRef, subPurchase, sku, true);
 
-  if (!setSub) {
-    response.json({ error: `Error setting hasSub for ${sku}.` });
-    return;
-  }
-  // If purchase has not been acknowledged, acknowledge it
-  if (!subPurchase.wasAcknowledged()) {
-    const purchaseAcknowledged = await purchases.acknowledgeSubPurchase(sku, purchaseToken);
-    if (purchaseAcknowledged) {
-      response.json({ status: 'Subscription purchase verified and granted.' });
-      return;
-    }
-    response.json({ error: 'Error acknowledging purchase' });
-    return;
-  }
+//   if (!setSub) {
+//     response.json({ error: `Error setting hasSub for ${sku}.` });
+//     return;
+//   }
+//   // If purchase has not been acknowledged, acknowledge it
+//   if (!subPurchase.wasAcknowledged()) {
+//     const purchaseAcknowledged = await purchases.acknowledgeSubPurchase(sku, purchaseToken);
+//     if (purchaseAcknowledged) {
+//       response.json({ status: 'Subscription purchase verified and granted.' });
+//       return;
+//     }
+//     response.json({ error: 'Error acknowledging purchase' });
+//     return;
+//   }
 
-  response.json({ status: 'Sub purchase was already acknowledged' });
-});
+//   response.json({ status: 'Sub purchase was already acknowledged' });
+// });
 
-app.post('/validatePurchase', async (request: functions.Request, response: functions.Response) => {
-  functions.logger.info('Validate purchase request came in', { structuredData: true });
-  // Get parameters passed to the request
-  const sku: string = request.body?.sku;
-  const purchaseToken: string = request.body?.token;
+// app.post('/validatePurchase', async (request: functions.Request, response: functions.Response) => {
+//   functions.logger.info('Validate purchase request came in', { structuredData: true });
+//   // Get parameters passed to the request
+//   const sku: string = request.body?.sku;
+//   const purchaseToken: string = request.body?.token;
 
-  if (sku === undefined || purchaseToken === undefined) {
-    console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
-    response.status(400).json({
-      error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
-    });
-    return;
-  }
+//   if (sku === undefined || purchaseToken === undefined) {
+//     console.error(`Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`);
+//     response.status(400).json({
+//       error: `Incorrect propery values sent : Either sku (${sku}) or purchaseToken (${purchaseToken}) is undefined`,
+//     });
+//     return;
+//   }
 
-  // Make sure token isn't already in tokens db
-  if (await tokensdb.exists(purchaseToken)) {
-    console.error('Purchase token already exists');
-    response.json({ error: 'Unable to validate purchase because token already exists' });
-    return;
-  }
+//   // Make sure token isn't already in tokens db
+//   if (await tokensdb.exists(purchaseToken)) {
+//     console.error('Purchase token already exists');
+//     response.json({ error: 'Unable to validate purchase because token already exists' });
+//     return;
+//   }
 
-  // Make sure token is in valid purchase state
-  const purchase = await purchases.fetchPurchase(sku, purchaseToken);
-  if (!purchase || !purchase.wasPurchased()) {
-    console.error('Cannot determine if purchase is valid');
-    response.status(503).json({ error: 'Purchase not verified' });
-    return;
-  }
+//   // Make sure token is in valid purchase state
+//   const purchase = await purchases.fetchPurchase(sku, purchaseToken);
+//   if (!purchase || !purchase.wasPurchased()) {
+//     console.error('Cannot determine if purchase is valid');
+//     response.status(503).json({ error: 'Purchase not verified' });
+//     return;
+//   }
 
-  response.json({ status: true });
-});
+//   response.json({ status: true });
+// });
 
-app.post(
-  '/validateSubPurchase',
-  async (request: functions.Request, response: functions.Response) => {
-    functions.logger.info('Validate sub purchase request came in', { structuredData: true });
-    // Get parameters passed to the request
-    const sku: string = request.body?.sku;
-    const purchaseToken: string = request.body?.token;
+// app.post(
+//   '/validateSubPurchase',
+//   async (request: functions.Request, response: functions.Response) => {
+//     functions.logger.info('Validate sub purchase request came in', { structuredData: true });
+//     // Get parameters passed to the request
+//     const sku: string = request.body?.sku;
+//     const purchaseToken: string = request.body?.token;
 
-    // Make sure token isn't already in tokens db
-    if (await tokensdb.exists(purchaseToken)) {
-      console.error('Purchase token already exists');
-      response.json({
-        error: 'Unable to validate subscription purchase because token already exists',
-      });
-      return;
-    }
-    // Verify purchase with Play Developer API
-    const subPurchase = await purchases.fetchSubscriptionPurchase(sku, purchaseToken);
-    if (subPurchase?.isEntitlementActive()) {
-      response.json({ status: true });
-    } else {
-      response.json({ error: 'Subscription is not active and is not valid' });
-    }
-  },
-);
+//     // Make sure token isn't already in tokens db
+//     if (await tokensdb.exists(purchaseToken)) {
+//       console.error('Purchase token already exists');
+//       response.json({
+//         error: 'Unable to validate subscription purchase because token already exists',
+//       });
+//       return;
+//     }
+//     // Verify purchase with Play Developer API
+//     const subPurchase = await purchases.fetchSubscriptionPurchase(sku, purchaseToken);
+//     if (subPurchase?.isEntitlementActive()) {
+//       response.json({ status: true });
+//     } else {
+//       response.json({ error: 'Subscription is not active and is not valid' });
+//     }
+//   },
+// );
 
 const main = express();
 main.use(cors({ origin: true }));
