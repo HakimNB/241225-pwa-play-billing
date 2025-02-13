@@ -38,7 +38,79 @@ const playApi = google.androidpublisher({
 });
 
 /**
- *  Return all the purchases completed by the user from the Play Developer API.
+ *  Return result of acknowledge purchase API <FOR LEGACY API>
+ *
+ * @param {string} productId the productId eg: iap_dynasty_89
+ * @param {string} token the purchase token returned by listPurchases API
+ * @return {(Promise<any>)} result of the consume from Play server
+ */
+export async function acknowledgePurchase(productId: string, token: string): Promise<any> {
+  try {
+    const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/purchases/products/${productId}/tokens/${token}:acknowledge`;
+    const result = await jwtClient.request({
+      url: szUrl,
+      method: 'POST',
+    });
+    functions.logger.debug('url: ' + szUrl);
+    functions.logger.debug(result);
+    functions.logger.debug(result.data);
+    return result.data;
+  } catch (error) {
+    console.error(`Error calling acknowledgePurchase : ${error}`);
+    return { result: false };
+  }
+}
+
+/**
+ *  Return result of consume purchase API <FOR LEGACY API>
+ *
+ * @param {string} productId the productId eg: iap_dynasty_89
+ * @param {string} token the purchase token returned by listPurchases API
+ * @return {(Promise<any>)} result of the consume from Play server
+ */
+export async function consumePurchase(productId: string, token: string): Promise<any> {
+  try {
+    const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/purchases/products/${productId}/tokens/${token}:consume`;
+    const result = await jwtClient.request({
+      url: szUrl,
+      method: 'POST',
+    });
+    functions.logger.debug('url: ' + szUrl);
+    functions.logger.debug(result);
+    functions.logger.debug(result.data);
+    return result.data;
+  } catch (error) {
+    console.error(`Error calling consumePurchase : ${error}`);
+    return { result: false };
+  }
+}
+
+/**
+ *  Return result of verify purchase API <FOR LEGACY API>
+ *
+ * @param {string} productId the productId eg: iap_dynasty_89
+ * @param {string} token the purchase token returned by listPurchases API
+ * @return {(Promise<any>)} result of the verify from Play server
+ */
+export async function verifyPurchaseToken(productId: string, token: string): Promise<any> {
+  try {
+    const szUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${myconfig.packageName}/purchases/products/${productId}/tokens/${token}`;
+    const result = await jwtClient.request({
+      url: szUrl,
+      method: 'GET',
+    });
+    functions.logger.debug('url: ' + szUrl);
+    functions.logger.debug(result);
+    functions.logger.debug(result.data);
+    return result.data;
+  } catch (error) {
+    console.error(`Error calling verifyPurchaseToken : ${error}`);
+    return { result: false };
+  }
+}
+
+/**
+ *  Return all the purchases completed by the user from the Play Developer API. <FOR LEGACY API>
  *
  * @param {string} userAccessToken is the access token of the user whose purchases are to be listed
  * @return {(Promise<any>)} whether the acknowledgement of the in-app purchase was successful

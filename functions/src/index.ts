@@ -132,14 +132,53 @@ app.use(cors({ origin: true }));
 //   response.json({ skus: skus });
 // });
 
-// app.get('/getPurchases', async (request: functions.Request, response: functions.Response) => {
-//   functions.logger.info('purchases', { structuredData: true });
-//   const userAccessToken = request.query.userAccessToken + '';
-//   // const result = purchases.fetchPurchase(sku, userAccessToken);
-//   const result = await purchases.listPurchases(userAccessToken);
-//   functions.logger.info('purchases result', result);
-//   response.json({ purchasesresult: result });
-// });
+app.post(
+  '/acknowledgePurchase',
+  async (request: functions.Request, response: functions.Response) => {
+    functions.logger.info('acknowledgePurchase', request.body);
+    functions.logger.info('body: ' + JSON.stringify(request.body)); // body: {"key1":"value1", "key2":"value2"}
+    const productId = request.body.productId;
+    const token = request.body.token;
+    functions.logger.info('productId: ' + productId);
+    functions.logger.info('token: ' + token);
+    const result = await purchases.acknowledgePurchase(productId, token);
+    functions.logger.info('acknowledge result', result);
+    response.json(result);
+  },
+);
+
+app.post('/consumePurchase', async (request: functions.Request, response: functions.Response) => {
+  functions.logger.info('consumePurchase', request.body);
+  functions.logger.info('body: ' + JSON.stringify(request.body)); // body: {"key1":"value1", "key2":"value2"}
+  const productId = request.body.productId;
+  const token = request.body.token;
+  functions.logger.info('productId: ' + productId);
+  functions.logger.info('token: ' + token);
+  const result = await purchases.consumePurchase(productId, token);
+  functions.logger.info('consume result', result);
+  response.json(result);
+});
+
+app.get(
+  '/verifyPurchaseToken',
+  async (request: functions.Request, response: functions.Response) => {
+    functions.logger.info('verifyPurchaseToken', request.query);
+    const productId = request.query.productId + '';
+    const token = request.query.token + '';
+    const result = await purchases.verifyPurchaseToken(productId, token);
+    functions.logger.info('verify result', result);
+    response.json(result);
+  },
+);
+
+app.get('/getPurchases', async (request: functions.Request, response: functions.Response) => {
+  functions.logger.info('purchases', { structuredData: true });
+  const userAccessToken = request.query.userAccessToken + '';
+  // const result = purchases.fetchPurchase(sku, userAccessToken);
+  const result = await purchases.listPurchases(userAccessToken);
+  functions.logger.info('purchases result', result);
+  response.json({ purchasesresult: result });
+});
 
 // // Used for testing but not needed.
 // // app.post('/createUser', async (request: RequestWithUser, response: functions.Response) => {
